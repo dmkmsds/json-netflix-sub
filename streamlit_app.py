@@ -21,12 +21,30 @@ from transformers import AutoTokenizer, AutoModel
 from google.cloud import translate_v2 as translate
 
 
+
+# ------------------ LOAD GOOGLE CLOUD CREDENTIALS FROM SECRETS ------------------
+if "GOOGLE_CREDS_JSON" in os.environ:
+    creds_dict = json.loads(os.environ["GOOGLE_CREDS_JSON"])
+elif "google_cloud" in st.secrets:
+    creds_dict = dict(st.secrets["google_cloud"])
+else:
+    st.error("No credentials found")
+
+# Write to file and set env var
+creds_path = "temp_google_credentials.json"
+with open(creds_path, "w") as f:
+    json.dump(creds_dict, f)
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
+
+'''
 if "google_cloud" in st.secrets:
     creds_dict = dict(st.secrets["google_cloud"])  # Already a dict
     creds_path = "temp_google_credentials.json"
     with open(creds_path, "w") as f:
         json.dump(creds_dict, f)
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = creds_path
+'''
+
 
 # create a client using your credentials from st.secrets, etc.
 translation_client = translate.Client()
