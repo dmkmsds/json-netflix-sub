@@ -4,9 +4,9 @@
 import streamlit as st
 import pandas as pd
 import json
+import os
 import random
 import jieba
-import os
 from pypinyin import lazy_pinyin, Style
 import torch
 import itertools
@@ -21,8 +21,6 @@ from transformers import AutoTokenizer, AutoModel
 from google.cloud import translate_v2 as translate
 
 
-
-# ------------------ LOAD GOOGLE CLOUD CREDENTIALS FROM SECRETS ------------------
 # ------------------ LOAD GOOGLE CLOUD CREDENTIALS FROM SECRETS ------------------
 
 def configure_google_credentials():
@@ -58,7 +56,6 @@ def configure_google_credentials():
 # Example usage:
 configure_google_credentials()
 
-
 # create a client using your credentials from st.secrets, etc.
 translation_client = translate.Client()
 
@@ -88,13 +85,18 @@ def google_translate_ch_to_en(ch_text: str) -> str:
 ########################
 # 1) LOAD AWESOME-ALIGN MODEL
 ########################
-# ------------------ AWESOME-ALIGN MODEL ------------------
 @st.cache_resource
 def load_awesome_align_model():
-    model = AutoModel.from_pretrained("aneuraz/awesome-align-with-co")
-    tokenizer = AutoTokenizer.from_pretrained("aneuraz/awesome-align-with-co")
+    """
+    Loads a pre-trained awesome-align model.
+    See https://github.com/neulab/awesome-align
+    For example, "aneuraz/awesome-align-with-co".
+    """
+    model_name = "aneuraz/awesome-align-with-co"
+    model = AutoModel.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model.eval()
     return model, tokenizer
-
 
 model, tokenizer = load_awesome_align_model()
 
@@ -111,8 +113,6 @@ def awesome_align(english_text, chinese_text):
     - Embed them with the model
     - Compute alignment at layer=8
     - Return a set of (src_idx, tgt_idx, prob).
-      (src_idx refers to the English token index;
-       tgt_idx refers to the Chinese token index.)
     """
     align_layer = 8
     threshold = 1e-3
@@ -177,7 +177,7 @@ def awesome_align(english_text, chinese_text):
 
 
 ########################
-# 3) COLOR-CODING LOGIC (as in your snippet)
+# 3) COLOR-CODING LOGIC
 ########################
 def color_code_by_alignment(english_text, chinese_text):
     """
@@ -272,27 +272,12 @@ def main():
         # Basic DataFrame reading (tab-separated, ignoring header row if you have it)
         df = pd.read_csv(
             uploaded_file,
-            #sep=r"",      # split on 2+ consecutive spaces/tabs
             engine="python",
-            header=0            # tells pandas: the first row is the header
-)
+            header=0
+        )
         df = df.fillna("")
         st.write("Parsed Data")
         st.dataframe(df)
-
-        # We'll produce a final data structure like:
-        # [
-        #   {
-        #       "start_time": "...",
-        #       "end_time": "...",
-        #       "top_subtitle": "the pinyin version of the Chinese",
-        #       "bottom_subtitle": "the English text",
-        #       "color_top_sub": ["#000000", ...],  # parallel to top_subtitle words
-        #       "color_bottom_sub": [...],          # parallel to bottom_subtitle words
-        #   },
-        #   ...
-        # ]
-        # But here we'll replicate your color logic from the snippet: using named colors, not hex.
 
         final_output = []
         for i in range(len(df)):
@@ -300,8 +285,8 @@ def main():
             time_str = row["Time"].strip()
             subtitle_ch = row["Subtitle"].strip()       # The Chinese line
             
-            #translation_en = row["Translation"].strip() # the original line -just keeping here just in case
-            translation_en = google_translate_ch_to_en(subtitle_ch) # The English google translated line
+            # Translate to English via Google
+            translation_en = google_translate_ch_to_en(subtitle_ch)
 
             # Next line's time (for end_time), or blank if last
             if i < len(df) - 1:
@@ -312,23 +297,26 @@ def main():
             # Use the snippet logic: English is "source", Chinese is "target"
             eng_colored, chn_colored, pin_colored_expanded = color_code_by_alignment(translation_en, subtitle_ch)
             
-            # Now we want top_subtitle (pinyin) with colors, bottom_subtitle (English) with colors
-            # We'll store them as arrays of tokens, but also produce a single space-joined string
-            # in "top_subtitle" and "bottom_subtitle".
+            # Build strings for top (pinyin) and bottom (English)
             top_tokens_str   = " ".join(t for (t, c) in pin_colored_expanded)
             top_colors_array = [c for (t, c) in pin_colored_expanded]
 
             bottom_tokens_str   = " ".join(t for (t, c) in eng_colored)
             bottom_colors_array = [c for (t, c) in eng_colored]
 
-            # Build the final dict for this line
+            # IMPORTANT CHANGE: Convert color arrays to single bracketed strings
+            # Example: "[red, red, lime]" instead of ["red","red","lime"]
+            color_top_string = "[" + ", ".join(top_colors_array) + "]"
+            color_bottom_string = "[" + ", ".join(bottom_colors_array) + "]"
+
+            # Build the final dict
             line_data = {
                 "start_time": time_str,
                 "end_time": end_time_str,
                 "top_subtitle": top_tokens_str,
                 "bottom_subtitle": bottom_tokens_str,
-                "color_top_sub": top_colors_array,
-                "color_bottom_sub": bottom_colors_array
+                "color_top_sub": color_top_string,      # <--- changed
+                "color_bottom_sub": color_bottom_string # <--- changed
             }
             final_output.append(line_data)
 
