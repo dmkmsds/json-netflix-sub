@@ -7,4 +7,3 @@ jieba
 transformers
 pypinyin
 pandas
-google.cloud
