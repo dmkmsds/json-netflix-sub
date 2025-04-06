@@ -1,9 +1,7 @@
-streamlit
 torch
 torchvision
 google-cloud-vision
 pypinyin
 jieba
 transformers
-pypinyin
 pandas
