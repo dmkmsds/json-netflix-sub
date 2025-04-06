@@ -1,3 +1,4 @@
+pip
 torch
 torchvision
 google-cloud-vision
