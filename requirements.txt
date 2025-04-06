@@ -7,3 +7,4 @@ jieba
 transformers
 pypinyin
 pandas
+itertools
