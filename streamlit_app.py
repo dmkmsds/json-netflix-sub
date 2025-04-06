@@ -64,8 +64,8 @@ def load_awesome_align_model():
     See https://github.com/neulab/awesome-align
     For example, "aneuraz/awesome-align-with-co".
     """
-    #model_name = "aneuraz/awesome-align-with-co"
-    model_name = "./awesome_align_model"
+    model_name = "aneuraz/awesome-align-with-co"
+    #model_name = "./awesome_align_model"
     model = AutoModel.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model.eval()
