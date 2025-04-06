@@ -1,6 +1,6 @@
 torch
 torchvision
-google-cloud-vision
+google-cloud-translate
 pypinyin
 jieba
 transformers
