@@ -6,6 +6,7 @@ import pandas as pd
 import json
 import random
 import jieba
+import os
 from pypinyin import lazy_pinyin, Style
 import torch
 import itertools
