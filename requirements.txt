@@ -2,7 +2,7 @@ streamlit
 torch
 torchvision
 google-cloud-vision
-pipipypinyin
+pypinyin
 jieba
 transformers
 pypinyin
