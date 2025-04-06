@@ -57,18 +57,11 @@ def google_translate_ch_to_en(ch_text: str) -> str:
 ########################
 # 1) LOAD AWESOME-ALIGN MODEL
 ########################
+# ------------------ AWESOME-ALIGN MODEL ------------------
 @st.cache_resource
-def load_awesome_align_model_2():
-    """
-    Loads a pre-trained awesome-align model.
-    See https://github.com/neulab/awesome-align
-    For example, "aneuraz/awesome-align-with-co".
-    """
-    model_name = "aneuraz/awesome-align-with-co"
-    #model_name = "./awesome_align_model"
-    model = AutoModel.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model.eval()
+def load_awesome_align_model():
+    model = AutoModel.from_pretrained("aneuraz/awesome-align-with-co")
+    tokenizer = AutoTokenizer.from_pretrained("aneuraz/awesome-align-with-co")
     return model, tokenizer
 
 
