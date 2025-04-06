@@ -6,3 +6,4 @@ pipipypinyin
 jieba
 transformers
 pypinyin
+pandas
