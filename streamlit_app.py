@@ -65,16 +65,6 @@ def load_awesome_align_model():
     return model, tokenizer
 
 
-
-@st.cache_resource
-def load_awesome_align_model():
-    model_name = "./awesome_align_model"
-    model = AutoModel.from_pretrained(model_name, local_files_only=True)
-    tokenizer = AutoTokenizer.from_pretrained(model_name, local_files_only=True)
-    model.eval()
-    return model, tokenizer
-
-
 model, tokenizer = load_awesome_align_model()
 
 
