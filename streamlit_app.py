@@ -92,10 +92,12 @@ def load_awesome_align_model():
     See https://github.com/neulab/awesome-align
     For example, "aneuraz/awesome-align-with-co".
     """
-    model = AutoModel.from_pretrained("aneuraz/awesome-align-with-co",
-                                     use_auth_token = "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")
-    tokenizer = AutoTokenizer.from_pretrained("aneuraz/awesome-align-with-co",
-                                             use_auth_token = "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")
+    model = AutoModel.from_pretrained("aneuraz/awesome-align-with-co"
+                                     #,use_auth_token = "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"
+                                     )
+    tokenizer = AutoTokenizer.from_pretrained("aneuraz/awesome-align-with-co"
+                                             #,use_auth_token = "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"
+                                             )
     model.eval()
     return model, tokenizer
 
